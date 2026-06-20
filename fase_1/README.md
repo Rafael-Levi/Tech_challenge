@@ -1,0 +1,1 @@
+Código usado no notebook colab para análise dos dados olist
