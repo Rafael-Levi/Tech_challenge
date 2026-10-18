@@ -22,7 +22,7 @@
 - *IA*: uma categoria nova de uso de IA generativa (não usa, gratuita, Copilot, paga do bolso, empresa paga), que permite comparar salário e satisfação por nível de uso.
 
 
-## Como o BI deve ler os números
+## Como o BI le os números
 - *Quem respondeu*: todo percentual usa como base quem respondeu a pergunta, não o total. As bases ficam em colunas ``qt_base_*``.
 - *Colunas somáveis*: as ``qt_*`` e ``qt_base_*`` podem ser somadas sob qualquer filtro. A pct_participacao_pesquisa também (soma 100% por ano).
 - *Percentuais no grão do fato*: as colunas ``pct_*`` são válidas quando o gráfico usa as mesmas dimensões do grão. Se o BI agregar além disso, use ``SUM(qt_x) / SUM(qt_base_x)``.
@@ -34,7 +34,7 @@
 - *Dimensões derivadas (verdes no diagrama)*: região (vem da UF; inclui “Exterior”), cargo (junta cargos individuais e cargos de gestão), uso de IA e opção (com um “tema” para filtrar: linguagens, BI, cloud, barreiras de IA, motivos de insatisfação...).
 - *Validação*: além de PK e FK, a reconciliação com a Silver falharia se algum agregado não batesse com o granular.
 
-## Cuidados para a apresentação
+## Pontos de atenção
 - O “salário” da pesquisa é uma faixa. Todos os valores são médias de pontos médios das faixas, então são estimativas.
 - O impacto da IA é uma correlação. Quem usa IA paga pela empresa tende a ser mais sênior, então filtre por senioridade antes de concluir algo.
 - Em 2025, a pergunta de linguagens teve opções removidas. SQL, Python e R comparam bem entre os anos, mas Java e JavaScript não.

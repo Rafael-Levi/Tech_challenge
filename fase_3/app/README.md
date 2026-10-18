@@ -26,16 +26,3 @@ cd app
 pip install -r requirements.txt
 streamlit run app.py
 ```
-
-Em rede corporativa com inspeção TLS (erro `CERTIFICATE_VERIFY_FAILED`), aponte o bundle de certificados da
-empresa com `ca_bundle = "C:/caminho/ca.pem"` em `[aws]` no `secrets.toml`.
-
-
-## Publicar no Streamlit Community Cloud
-
-1. Faça push do repositório para o GitHub **sem** o `secrets.toml` (o `.gitignore` desta pasta já o exclui).
-2. Em [share.streamlit.io](https://share.streamlit.io) → **Create app** → escolha o repositório e a branch, e informe
-   o arquivo principal `fase_3/app/app.py`. O `requirements.txt` desta pasta é detectado automaticamente.
-3. Em **Advanced settings → Secrets**, cole o bloco `[aws]` acima com as chaves reais.
-4. **Deploy**. A primeira carga lê as 20 tabelas da gold (alguns segundos) e as guarda em cache por 6 horas.
-   A página *Sobre os dados* tem um botão para recarregar depois de uma nova execução da ETL.
