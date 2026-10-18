@@ -2,6 +2,8 @@
 
 Dashboard em Streamlit que lê a camada **gold** (star schema) do data lake na AWS, pelo catálogo Glue `db_gold`.
 
+**Link do dashbord**: [`datahackers-dashbord`](https://tech-challenge-datahackers-dashbord.streamlit.app/)
+
 ## Estrutura
 
 ```
