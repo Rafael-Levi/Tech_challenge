@@ -343,20 +343,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-`app/.streamlit/secrets.toml` (no Streamlit Community Cloud, o mesmo bloco vai em *Settings → Secrets*):
-
-```toml
-[aws]
-access_key_id     = "<chave do user-streamlit-dashboard>"
-secret_access_key = "<segredo>"
-region            = "us-east-1"
-workgroup         = "wg-dashboard"
-database          = "db_gold"
-# engine = "auto"   # auto (padrão: Athena, com o catálogo Glue como reserva) | athena | glue
-```
-
-Para publicar: em [share.streamlit.io](https://share.streamlit.io), *Create app*, escolha o repositório, a branch `main` e
-o arquivo principal `fase_3/app/app.py`, e cole os secrets.
+Dashbord publicado: [`datahackers-dashbord`](https://tech-challenge-datahackers-dashbord.streamlit.app/)
 
 ---
 
