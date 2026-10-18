@@ -1,0 +1,6 @@
+# Sem [theme]: o app segue o claro/escuro escolhido pelo usuário, e os gráficos acompanham (core/graficos.py).
+[client]
+toolbarMode = "viewer"
+
+[server]
+runOnSave = false

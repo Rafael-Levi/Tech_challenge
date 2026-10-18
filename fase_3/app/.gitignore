@@ -1,0 +1,4 @@
+# credenciais: no Streamlit Community Cloud elas vão em Settings > Secrets, nunca no repositório
+.streamlit/secrets.toml
+__pycache__/
+.venv/
