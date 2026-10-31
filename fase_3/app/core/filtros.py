@@ -5,14 +5,14 @@ import streamlit as st
 from core import dados
 from core import metricas as m
 
-ANOS = [2024, 2025]
+ANOS = [2023, 2024, 2025]
 
 
 def seletor_anos() -> None:
     """Filtro global (barra lateral): edições da pesquisa exibidas em todas as páginas."""
     st.pills("Edição da pesquisa", ANOS, selection_mode="multi", default=[2025], key="anos",
              format_func=lambda a: f"State of Data {a}",
-             help="Selecione as duas edições para comparar os anos.")
+             help="Selecione mais de uma edição para comparar os anos.")
 
 
 def anos() -> list[int]:
@@ -64,8 +64,9 @@ def indicadores(resumo: pd.DataFrame, specs: list[tuple]) -> None:
         col.metric(rot, m.FORMATOS[formato](valor), delta, delta_color=cor, border=True, help=ajuda)
 
 
-AVISO_ANOS = ("**Comparação entre anos:** a amostra de 2024 só tem pessoas de 18 a 27 anos, enquanto a de 2025 "
-              "vai até 71. Diferenças entre os anos refletem também essa mudança de público.")
+AVISO_ANOS = ("**Comparação entre anos:** cada edição é uma amostra independente, com respondentes diferentes, e "
+              "algumas perguntas mudaram entre os anos (opções incluídas, removidas ou reescritas; a senioridade "
+              "\"Especialista/Staff+\" só existe em 2025). Compare tendências, não diferenças pequenas.")
 AVISO_SALARIO = ("O salário da pesquisa é informado em **faixas**: os valores são médias dos pontos médios das "
                  "faixas, ou seja, estimativas.")
 

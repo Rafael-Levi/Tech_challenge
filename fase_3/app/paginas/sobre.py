@@ -6,7 +6,7 @@ from core import dados, filtros
 st.title("Sobre os dados")
 
 st.markdown("""
-**Fonte:** pesquisa *State of Data Brasil* (Data Hackers), edições **2024** e **2025**.
+**Fonte:** pesquisa *State of Data Brasil* (Data Hackers), edições **2023**, **2024** e **2025**.
 
 **Pipeline no data lake (AWS S3 + Glue):**
 
@@ -48,6 +48,8 @@ for aviso in [
     "O impacto da IA é uma correlação: quem usa IA paga pela empresa tende a ser mais sênior.",
     "Em 2025 a pergunta de linguagens teve opções removidas: SQL, Python e R comparam bem entre os anos; Java e JavaScript não.",
     "A senioridade \"Não informado\" é grande porque gestores e quem não trabalha não preenchem esse campo.",
+    "Em 2023 várias perguntas tinham outra redação. Elas foram alinhadas às de 2024 pelo código da pergunta e, nos "
+    "motivos de insatisfação (7 opções em 2023, 11 depois), pelo significado de cada opção.",
 ]:
     st.markdown(f"- {aviso}")
 

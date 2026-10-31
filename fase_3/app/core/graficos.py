@@ -1,6 +1,6 @@
 """Gráficos Plotly com a mesma linguagem visual em todas as páginas.
 
-- Cor segue a entidade: o ano da pesquisa tem sempre a mesma cor (2025 azul, 2024 laranja).
+- Cor segue a entidade: o ano da pesquisa tem sempre a mesma cor (2025 azul, 2024 laranja, 2023 verde-água).
 - Grandeza = um só matiz (azul), do claro ao escuro; polaridade = vermelho <-> cinza <-> azul.
 - Barras finas com ponta arredondada, grade em linha fina, rótulos de texto em tons neutros.
 - Todo gráfico tem a tabela de dados ao lado (expander "Ver dados").
@@ -48,7 +48,7 @@ def tema() -> dict:
 
 def cor_ano(ano: int) -> str:
     cat = tema()["cat"]
-    return cat[0] if int(ano) == 2025 else cat[1]
+    return {2025: cat[0], 2024: cat[1], 2023: cat[2]}[int(ano)]
 
 
 def rampa(n: int) -> list[str]:
@@ -144,7 +144,8 @@ def barras(df: pd.DataFrame, cat: str, valor: str, fmt=m.pct, ordem: list[str] |
     if not varios:  # toda barra já tem o valor na ponta: o eixo de valores seria redundante
         fig.update_xaxes(showticklabels=False, showgrid=False)
     n_linhas = _rotulos_categoria(fig.layout.yaxis, ordem)
-    altura = altura or max(170, len(ordem) * ((46 if varios else 30) + 12 * (n_linhas - 1)) + 70)
+    por_categoria = 16 + 15 * len(anos) if varios else 30  # uma barra por ano dentro de cada categoria
+    altura = altura or max(170, len(ordem) * (por_categoria + 12 * (n_linhas - 1)) + 70)
     return _layout(fig, altura, legenda=varios)
 
 

@@ -13,9 +13,13 @@ base = dados.fato("gld_ft_adocao_opcao", anos)
 base = base[base["cd_opcao"] != dados.NAO_INFORMADO]
 TEMAS_IA = ("IA generativa", "Diversidade", "Motivos", "Critérios", "Gestão")  # têm páginas próprias
 temas = sorted(t for t in base["ds_tema"].unique() if not t.startswith(TEMAS_IA))
+if not temas:
+    st.info("Nenhuma resposta de múltipla escolha para as edições selecionadas.")
+    st.stop()
 
 c1, c2, c3, c4 = st.columns(4)
-tema = c1.selectbox("Tema", temas, index=temas.index("Linguagens de programação"), key="tec_tema")
+padrao = "Linguagens de programação"
+tema = c1.selectbox("Tema", temas, index=temas.index(padrao) if padrao in temas else 0, key="tec_tema")
 opcoes = sorted(base.loc[base["ds_tema"] == tema, "ds_opcao"].unique())
 escolhidas = c2.multiselect("Opção / tecnologia", opcoes, placeholder="Todas", key=f"tec_opcoes_{tema}")
 selecao = {cd: col.multiselect(dados.rotulo(cd), dados.ordem(cd), placeholder="Todos", key=f"tec_{cd}")

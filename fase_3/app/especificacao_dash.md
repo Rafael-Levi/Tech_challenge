@@ -38,5 +38,5 @@
 - O “salário” da pesquisa é uma faixa. Todos os valores são médias de pontos médios das faixas, então são estimativas.
 - O impacto da IA é uma correlação. Quem usa IA paga pela empresa tende a ser mais sênior, então filtre por senioridade antes de concluir algo.
 - Em 2025, a pergunta de linguagens teve opções removidas. SQL, Python e R comparam bem entre os anos, mas Java e JavaScript não.
-- A amostra de 2024 só tem pessoas de 18 a 27 anos, enquanto a de 2025 vai até 71. Se não for a base completa, as comparações entre anos ficam enviesadas.
+- Cada edição (2023, 2024 e 2025) é uma amostra independente, com perfil etário parecido (mediana de 30, 31 e 32 anos). Algumas perguntas mudaram entre os anos: a senioridade "Especialista/Staff+" só existe em 2025, e em 2023 os motivos de insatisfação tinham 7 opções, alinhadas às de 2024 pelo significado.
 - A senioridade “Não informado” é grande (277 respondentes em 2025), porque gestores e quem não trabalha não preenchem esse campo.

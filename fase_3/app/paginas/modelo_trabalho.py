@@ -78,4 +78,8 @@ for col, tema, titulo in [(c1, "Motivos de insatisfação", "Motivos de insatisf
                    .rename(columns={"ds_opcao": "Opção", "qt_base": "Viram a pergunta", "qt_selecionado": "Marcaram",
                                     "pct_adocao": "%"}), chave=f"modelo_{tema}")
 
-filtros.avisos("Percentuais calculados sobre quem respondeu cada pergunta (bases nas tabelas \"Ver dados\").")
+avisos = ["Percentuais calculados sobre quem respondeu cada pergunta (bases nas tabelas \"Ver dados\")."]
+if 2023 in anos:
+    avisos.append("Em 2023 a pergunta de motivos de insatisfação tinha 7 opções, com outra redação. Elas foram alinhadas "
+                  "às de 2024 pelo significado; as opções que só existem a partir de 2024 não têm resposta em 2023.")
+filtros.avisos(*avisos)

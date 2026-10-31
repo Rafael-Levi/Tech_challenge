@@ -44,6 +44,6 @@ with st.sidebar:
     fonte = "Amazon Athena" if nome_motor == "athena" else "Catálogo Glue → S3"
     st.caption(f"Fonte: `{st.secrets['aws']['database']}` via {fonte}",
                help=f"Athena indisponível, leitura direta pelo catálogo Glue. Motivo: {motivo}" if motivo else None)
-    st.caption("Dados: pesquisa State of Data Brasil (Data Hackers), edições 2024 e 2025.")
+    st.caption("Dados: pesquisa State of Data Brasil (Data Hackers), edições 2023, 2024 e 2025.")
 
 pg.run()
