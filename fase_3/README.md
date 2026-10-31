@@ -1,6 +1,6 @@
 # Tech Challenge · Fase 3 — Data lake State of Data Brasil na AWS
 
-Pipeline de dados ponta a ponta sobre a pesquisa **State of Data Brasil** (Data Hackers), edições **2024** e **2025**:
+Pipeline de dados ponta a ponta sobre a pesquisa **State of Data Brasil** (Data Hackers), edições **2023**, **2024** e **2025**:
 os CSVs originais entram num data lake no Amazon S3, são tratados em camadas por ETLs PySpark no AWS Glue,
 catalogados no Glue Data Catalog, consultados pelo Amazon Athena e apresentados num dashboard Streamlit.
 
@@ -77,7 +77,7 @@ flowchart TB
 
 ```
 fase_3/
-├── landing/                                   # CSVs originais da pesquisa (2024 e 2025)
+├── landing/                                   # CSVs originais da pesquisa (2023, 2024 e 2025)
 ├── bronze/
 │   └── ETL_ingestion_bronze_layer.ipynb       # landing -> bronze
 ├── silver/
@@ -102,7 +102,7 @@ Bucket: **`s3://tech-challenge-datahackers`**, região `us-east-1`.
 
 | Prefixo | Conteúdo | Organização |
 |---|---|---|
-| `landing/{ano}/` | CSV original de cada edição | uma pasta por ano (`landing/2024/`, `landing/2025/`) |
+| `landing/{ano}/` | CSV original de cada edição | uma pasta por ano (`landing/2023/`, `landing/2024/`, `landing/2025/`) |
 | `bronze/<tabela>/` | `respondentes`, `respostas_multipla`, `dim_perguntas` | Parquet particionado por `ano_pesquisa=AAAA` |
 | `silver/<tabela>/` | 40 tabelas `slv_mtd_*`, 2 `slv_evt_*` e `slv_meta_constraints` | Parquet, uma pasta por tabela |
 | `gold/<tabela>/` | 12 `gld_dim_*`, 7 `gld_ft_*` e `gld_meta_constraints` | Parquet, uma pasta por tabela (1 arquivo cada) |
@@ -114,10 +114,10 @@ A gold inteira ocupa **221 KB**, e o `SELECT *` no maior fato escaneia **80 KB**
 
 | Camada | Tabela | Linhas |
 |---|---|---|
-| Landing | CSV 2024 · CSV 2025 | 5.217 (403 colunas) · 3.495 (388 colunas) |
-| Bronze | `respondentes` | 8.709 (5.215 em 2024 + 3.494 em 2025, após remover tokens duplicados) |
-| Bronze | `respostas_multipla` | 1.026.336 |
-| Silver | `slv_evt_respondente` · `slv_evt_resposta_multipla` | 8.709 · 1.026.336 |
+| Landing | CSV 2023 · CSV 2024 · CSV 2025 | 5.293 (399 colunas) · 5.217 (403 colunas) · 3.495 (388 colunas) |
+| Bronze | `respondentes` | 14.002 (5.293 em 2023 + 5.215 em 2024 + 3.494 em 2025, após remover tokens duplicados) |
+| Bronze | `respostas_multipla` | ≈ 1,71 milhão (≈ 681 mil de 2023 + 1.026.336 de 2024 e 2025) |
+| Silver | `slv_evt_respondente` · `slv_evt_resposta_multipla` | mesmos volumes da bronze |
 | Gold | 7 fatos | de 140 (`gld_ft_ia_generativa`) a 4.512 (`gld_ft_adocao_opcao`) |
 | Gold | 12 dimensões | de 2 (`gld_dim_pesquisa`) a 325 (`gld_dim_opcao`) |
 
@@ -138,16 +138,18 @@ Cada notebook termina com uma **etapa de validação** que interrompe a execuç�
 
 ### 4.1 Landing → Bronze · [`bronze/ETL_ingestion_bronze_layer.ipynb`](bronze/ETL_ingestion_bronze_layer.ipynb)
 
-Objetivo: deixar os dois anos **com o mesmo schema** e tipos corretos, sem ainda modelar.
+Objetivo: deixar os três anos **com o mesmo schema** e tipos corretos, sem ainda modelar.
 
 | Problema na origem | Tratamento |
 |---|---|
+| **2023 tem outro cabeçalho:** tuplas como `('P2_h ', 'Faixa salarial')`, rótulos por extenso (`Você está satisfeito na sua empresa atual?`) e, nas seções 7 e 8, pergunta-mãe com código diferente do das opções (`P7_1` para as opções `P7_a_*`) | `normalizar_cabecalho` converte para o padrão de 2024 (`2.k_<rótulo>`) e `ROTULOS_2023` adota o rótulo de 2024 quando o código é a mesma pergunta ou opção. Os 7 motivos de insatisfação de 2023, que vêm em outra ordem e redação, foram alinhados pelo significado. |
+| Rótulos enganosos em 2023 | `Mudou de Estado?` tem a mesma distribuição de `vive_no_estado_de_formacao` (1 = mora no estado em que se formou) e `Regiao de origem` traz o estado. Ambos recebem o nome de 2024. |
 | Colunas nomeadas com o código da pergunta, que **muda entre os anos** (ex.: banco de dados é `4.g` em 2024 e `4.d` em 2025) | O nome vira o *slug* do rótulo, sem o código (`slug("4.d_Banco de dados")` → `banco_de_dados`). |
 | Perguntas renomeadas entre os anos | `ALIAS_PERGUNTA` unifica (ex.: `s4_linguagem_preferida` → `s4_linguagem_de_programacao_dia_a_dia`). |
 | Múltipla escolha em centenas de colunas 0/1 | Viram o **formato longo** `respostas_multipla(id_respondente, pergunta, opcao, selecionado)`. A coluna-texto que repetia a lista é descartada. Coluna vazia = pergunta não exibida, e a linha não é gerada. |
 | Respondentes duplicados | `dropDuplicates(["id_respondente"])`. |
-| Erros de digitação em 2025 (`R$ 3000/mês`, `de 501 a 100`) | Dicionário `CORRECOES`. |
-| Tipos inconsistentes | Data/hora → `timestamp`; sim/não → `boolean`; idade → `int`; demais textos → `string` (evita conflito de tipo entre anos). |
+| Erros de digitação em 2025 (`R$ 3000/mês`, `de 501 a 100`) e 2023 (`de R$ 101/mês a R$ 2.000/mês`) | Dicionário `CORRECOES`. |
+| Tipos inconsistentes | Data/hora → `timestamp` (2023 não tem esse campo); sim/não → `boolean`; idade → `int`; demais textos → `string` (evita conflito de tipo entre anos). |
 | Salário informado em faixa de texto | Extração de `salario_min`, `salario_max` e `salario_medio` (ponto médio da faixa). |
 
 Saídas, particionadas por `ano_pesquisa` com `partitionOverwriteMode=dynamic` (reprocessar um ano substitui só a partição
@@ -173,9 +175,12 @@ O processamento é *full refresh* (a base é pequena): códigos e eventos são r
 
 Principais regras:
 
+- **Leitura da bronze com `mergeSchema`:** cada partição (ano) tem colunas próprias (2023 não tem `data_hora_envio` nem
+  `pais_onde_mora`). Sem `mergeSchema`, o Spark usaria o schema de um único arquivo e descartaria colunas dos outros anos.
 - **Padronização de domínio (`canonizar`):** unifica grafias da mesma resposta (espaços, barras, maiúsculas, acentos, ex.
-  `Italia`/`Itália`) e aplica `ALIAS_VALORES` (ex.: `Apache Superset` → `Superset`). Em respostas livres, valores com
-  frequência abaixo de um mínimo viram `Outros (resposta livre)`.
+  `Italia`/`Itália`) e aplica `ALIAS_VALORES` (ex.: `Apache Superset` → `Superset`; em 2023, `Ciências Sociais` e
+  `Marketing / ... / Jornalismo` → a categoria que 2024 unificou). Em respostas livres, valores com frequência abaixo de um
+  mínimo viram `Outros (resposta livre)`.
 - **Domínios compartilhados:** modelo de trabalho atual e ideal usam a mesma MTD, com duas FKs.
 - **Tabelas de referência:** UF e região com códigos do IBGE. A UF é derivada da sigla ou do texto do estado.
 - **Chave substituta estável:** `sk_respondente = xxhash64(ano, id_respondente)`, que não muda entre execuções.
@@ -321,8 +326,8 @@ Código em [`app/`](app/) (detalhes em [`app/README.md`](app/README.md)). O dash
 | IA generativa | `gld_ft_ia_generativa` (+ `gld_ft_adocao_opcao`) | uso de IA, área de atuação, senioridade |
 | Sobre os dados | — | metodologia, conexão e recarga do cache |
 
-A edição da pesquisa (2024, 2025 ou as duas) é um filtro global da barra lateral. Com as duas selecionadas, os cartões
-mostram a variação entre os anos e os gráficos comparam as edições lado a lado.
+A edição da pesquisa (2023, 2024 e/ou 2025) é um filtro global da barra lateral. Com mais de uma selecionada, os cartões
+mostram a variação da edição mais recente em relação à anterior e os gráficos comparam as edições lado a lado.
 
 ### Como o app lê e calcula
 
@@ -349,7 +354,7 @@ Dashbord publicado: [`datahackers-dashbord`](https://tech-challenge-datahackers-
 
 ## 9. Como reproduzir
 
-1. **Landing:** envie os CSVs para `s3://tech-challenge-datahackers/landing/2024/` e `.../landing/2025/`.
+1. **Landing:** envie os CSVs para `s3://tech-challenge-datahackers/landing/2023/`, `.../landing/2024/` e `.../landing/2025/`.
 2. **Bronze:** execute `bronze/ETL_ingestion_bronze_layer.ipynb` numa Glue Interactive Session. Confira a contagem de
    respondentes por ano na célula de validação.
 3. **Silver:** execute `silver/ETL_ingestion_silver_layer.ipynb` do início ao fim. A célula de validação precisa terminar com
@@ -381,8 +386,9 @@ Dashbord publicado: [`datahackers-dashbord`](https://tech-challenge-datahackers-
 ## 11. Limitações e cuidados na leitura
 
 - **Salário estimado:** a pesquisa informa faixas salariais. Os valores são médias dos pontos médios das faixas.
-- **Comparação entre anos:** a amostra de 2024 só tem pessoas de 18 a 27 anos, enquanto a de 2025 vai até 71. Diferenças
-  entre as edições refletem também essa mudança de público.
+- **Comparação entre anos:** cada edição é uma amostra independente (o perfil etário é parecido: mediana de 30, 31 e 32
+  anos em 2023, 2024 e 2025), e algumas perguntas mudaram entre os anos. A senioridade "Especialista/Staff+" só existe em
+  2025, e em 2023 os motivos de insatisfação tinham 7 opções, com outra redação. Compare tendências, não diferenças pequenas.
 - **IA generativa:** a relação entre uso de IA e salário é uma **correlação**. Quem usa IA paga pela empresa tende a ser
   mais sênior; o dashboard compara dentro da mesma senioridade para separar parte desse efeito.
 - **Linguagens:** em 2025 a pergunta teve opções removidas. SQL, Python e R comparam bem entre os anos, Java e JavaScript não.
